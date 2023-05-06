@@ -30,7 +30,7 @@ namespace chat_chat
 
         private void craete_Click(object sender, RoutedEventArgs e)
         {
-           
+
             if (ip_con.Text == "Канал связи задавать тут" || ip_con.Text == "")
             {
                 MessageBox.Show("Веди ip");

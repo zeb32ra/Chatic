@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Threading;
 using System.Timers;
+using System.Security.Policy;
 
 namespace chat_chat
 {
@@ -32,6 +33,7 @@ namespace chat_chat
         string ip;
         string user;
         string message_name;
+        int cou = 0;
         int c = 0;
         public windwow(string name_, string ip_)
         {
@@ -63,21 +65,31 @@ namespace chat_chat
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 socket.ConnectAsync(ip, 8888); //ip - 127.0.0.1
 
-                
+
                 RecieveMessage(socket);
                 SendMessage(socket, user);
             }
 
-            
+
         }
 
         private void exit_Click(object sender, RoutedEventArgs e)
         {
             MainWindow mainWindow = new MainWindow();
             mainWindow.Show();
+            cou++;
             SendMessage(socket, "/diskonect" + " " + name);
-            
+            if (MainWindow.IsServer == true)
+            {
+                socket.Close();
+                socket_server.Close();
+            }
+            else
+            {
+                socket.Close();
+            }
             this.Close();
+
         }
 
 
@@ -85,15 +97,16 @@ namespace chat_chat
 
         private async Task ListenClients()
         {
+
             while (true)
             {
                 var client = await socket.AcceptAsync();
                 clients.Add(client);
-                
+
                 list_user_log.Items.Add(client.RemoteEndPoint);
-                
+
                 RecieveMessage(client);
-                
+
             }
 
         }
@@ -101,38 +114,51 @@ namespace chat_chat
         private async Task RecieveMessage(Socket client)
         {
             /*list_user.Items.Clear();*/
-            
+
             while (true)
             {
-               
+
                 byte[] bytes = new byte[1024];
                 await client.ReceiveAsync(bytes, SocketFlags.None);
                 string message = Encoding.UTF8.GetString(bytes);
 
                 //MessageBox.Show(message.TrimStart());
-                
                 if (message.StartsWith("/diskonect"))
                 {
-                    string[] a = message.Split(" ");
-                    //MessageBox.Show(a[1]);
-                    foreach (string i in list_user.Items)
-                    {
-                        string[] b = i.Split("\0");
-                        //MessageBox.Show((b[0] + " " + b[1]));
+                    //socket.Close();
 
-                        if ((b[0] + " " + b[1]) == "/username " + a[1])
+                    if (cou == 0)
+                    {
+                        string[] ms = message.Split("{");
+                        del(message);
+                        if (ms[1] == name)
                         {
-                            users.Remove(i);
+                            MainWindow mainWindow = new MainWindow();
+                            mainWindow.Show();
+                            //SendMessage(socket, "/diskonect" + " " + name);
+
+                            if (MainWindow.IsServer == true)
+                            {
+                                socket.Close();
+                                socket_server.Close();
+                            }
+                            else
+                            {
+                                socket.Close();
+                            }
+                            this.Close();
                         }
-                        //users.Remove("/username " + a[1]);
                     }
-                    list_user.ItemsSource = users;
+                    del(message);
+
+
                     //MessageBox.Show("/username " + a[1] + "  777");
                 }
 
+
                 if (MainWindow.IsServer == true)
                 {
-                    
+
                     foreach (var item in clients)
                     {
                         if (message.StartsWith("/username"))
@@ -151,20 +177,22 @@ namespace chat_chat
                                 }
                             }
                         }
+
+
                         else
                         {
-                            
+
                             SendMessage(item, message);
                         }
                     }
-                    
+
 
                 }
                 else
                 {
                     if (message.StartsWith("/username"))
                     {
-                        
+
                         users.Add(message);
                         list_user.Items.Add(message);
                         /*foreach (var item in users)
@@ -173,19 +201,20 @@ namespace chat_chat
                         }*/
                         //users.Clear();
                     }
+
                     else
                     {
                         string[] ms = message.Split("{");
-                        list_message.Items.Add($"[Весточка от {ms[0]} - {ms[1]}]: {ms[2]}");
+                        list_message.Items.Add($"[Весточка от {ms[1]} - {ms[2]}]: {ms[0]}");
                     }
 
-                    
+
 
                     //list_message.Items.Add(message);
                 }
 
 
-                
+
             }
 
         }
@@ -202,32 +231,30 @@ namespace chat_chat
         {
             while (true)
             {
-                
+
                 byte[] bytes = new byte[1024];
                 await client.ReceiveAsync(bytes, SocketFlags.None);
                 string message = Encoding.UTF8.GetString(bytes);
                 //list_message.Items.Add($"[Весточка от {name}]: {message}");
+                string[] ms = message.Split("{");
                 if (message.StartsWith("/diskonect"))
                 {
-                    string[] a = message.Split(" ");
-                    //MessageBox.Show(a[1]);
-                    foreach (var i in list_user.Items)
-                    {
+                    //socket_server.Close();
+                    del(message);
 
-                        list_user.Items.Remove(list_user.Items.IndexOf("/username " + a[1]));
-                    }
+
                 }
 
-                if (message.StartsWith("/username"))
+                else if (message.StartsWith("/username"))
                 {
                     //users.Add(message);
                     //list_user.Items.Add(message);
-                    list_user.Items.Add(message);
+                    list_user.Items.Add(message.ToString());
                 }
                 else
                 {
-                    string[] ms = message.Split("{");
-                    list_message.Items.Add($"[Весточка от {ms[0]} - {ms[1]}]: {ms[2]}");
+
+                    list_message.Items.Add($"[Весточка от {ms[1]} - {ms[2]}]: {ms[0]}");
                 }
             }
 
@@ -243,12 +270,12 @@ namespace chat_chat
             string mes;
             if (MainWindow.IsServer == true)
             {
-                mes = "ADMINISTRATOR" + "{" + time.ToString() + "{" + vestohka.Text;
+                mes = vestohka.Text + "{" + "ADMINISTRATOR" + "{" + time.ToString();
                 SendMessage(socket_server, mes);
             }
             else
             {
-                mes = name + "{" + time.ToString() + "{" + vestohka.Text;
+                mes = vestohka.Text + "{" + name + "{" + time.ToString();
                 SendMessage(socket, mes);
             }
         }
@@ -268,5 +295,70 @@ namespace chat_chat
                 c = 0;
             }
         }
+
+
+
+
+        private void del(string message)
+        {
+
+
+            string[] a = message.Split(" ");
+            //MessageBox.Show(a[1]);
+            bool Done_Del = true;
+            while (Done_Del)
+            {
+                try
+                {
+                    foreach (string i in list_user.Items)
+                    {
+                        string[] b = i.Split("\0");
+                        string[] attt = b[0].Split(" ");
+                        string h = a[1].Split("\0")[0];
+                        string d = attt[1];
+                        if (d.ToString() == h.ToString())
+                        {
+                            //MessageBox.Show(attt[1] + "777" + a[1]);
+                            list_user.Items.Remove(i);
+                        }
+                        //MessageBox.Show(i);
+                    }
+                    Done_Del = false;
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+
+        }
+
+
+        private void del_client()
+        {
+
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+            SendMessage(socket, "/diskonect" + " " + name);
+            if (MainWindow.IsServer == true)
+            {
+                socket.Close();
+                socket_server.Close();
+            }
+            else
+            {
+                socket.Close();
+            }
+            //SendMessage(socket, "/diskonect" + " " + name);
+
+
+        }
+
+
     }
 }
