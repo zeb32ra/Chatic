@@ -1,0 +1,61 @@
+﻿<Window x:Class="chat_chat.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:chat_chat"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="500" Background="Black">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        
+        <TextBlock TextAlignment="Center" Text="Здравствуйте. решили поболтать ?" VerticalAlignment="Center" Foreground="#FFBC1CE2" Grid.Column="1"/>
+        <TextBox x:Name="name"  Grid.Row="1"  Text="Погоняло вводи сюда" VerticalAlignment="Center" Background="Black" Grid.ColumnSpan="2">
+            <TextBox.Foreground>
+                <RadialGradientBrush>
+                    <GradientStop Color="#FFF9D300" Offset="1"/>
+                    <GradientStop Color="#FFCE00C9"/>
+                </RadialGradientBrush>
+            </TextBox.Foreground>
+        </TextBox>
+        <Button x:Name="craete" Content="Создать" Grid.Row="3" Margin="5,5,5,5" Click="craete_Click" Grid.ColumnSpan="3" Grid.Column="0" Foreground="#FF0C050C">
+            <Button.Background>
+                <RadialGradientBrush>
+                    <GradientStop Color="#FF9A159B" Offset="1"/>
+                    <GradientStop Color="#FFDDE626"/>
+                </RadialGradientBrush>
+            </Button.Background>
+
+
+        </Button>
+        <Button x:Name="connect" Content="Подключиться" Grid.Row="4" Margin="5,5,5,5" Click="connect_Click" Grid.ColumnSpan="3">
+            <Button.Background>
+                <RadialGradientBrush>
+                    <GradientStop Color="#FFDCD728" Offset="1"/>
+                    <GradientStop Color="#FFA01BCF"/>
+                </RadialGradientBrush>
+            </Button.Background>
+        </Button>
+        <TextBox x:Name="ip_con" Grid.Row="2"  Text="Канал связи задавать тут" VerticalAlignment="Center" Background="Black" Grid.ColumnSpan="2">
+            <TextBox.Foreground>
+                <RadialGradientBrush>
+                    <GradientStop Color="#FFF9D300" Offset="1"/>
+                    <GradientStop Color="#FFC400CE"/>
+                </RadialGradientBrush>
+            </TextBox.Foreground>
+        </TextBox>
+        <Image Source="C:\Сш\chat\chat_chat\picture\rosa.png" Margin="5,5,5,5"/>
+        <Image Grid.Column="2" Source="C:\Сш\chat\chat_chat\picture\rosa.png" Margin="5,5,5,5"/>
+    </Grid>
+</Window>
